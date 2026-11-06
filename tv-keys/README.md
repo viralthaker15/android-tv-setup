@@ -45,8 +45,8 @@ or blocks anything.
   away, when the service restarts, and after 5 minutes at most. Never changes the volume level. Leaves the sound alone
   if it was already muted, or if you press volume/mute during the ad.
 - **Verified** on 2026-11-06: a 32 s pre-roll muted 43 ms after Prime reported it and unmuted 44 ms after it ended.
-  Not verified: a mid-roll's end with mute on, live streams. SonyLIV and JioHotstar were not tested, so `APPS` lists
-  Prime only.
+  Not verified: a mid-roll's end with mute on, live streams. SonyLIV needs no mute on this TV (the DNS filter
+  already stops its ads; see the main guide, Part 1 step 8). JioHotstar was not tested. `APPS` lists Prime only.
 
 Enable: `adb shell cmd notification allow_listener dev.viral.tvkeys/dev.viral.tvkeys.AdMuteService`
 Disable: `adb shell cmd notification disallow_listener dev.viral.tvkeys/dev.viral.tvkeys.AdMuteService`

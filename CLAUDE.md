@@ -23,7 +23,7 @@ TV Keys is one 21 KB app (`dev.viral.tvkeys`, no internet permission). Its two p
 | Is it Android TV / Google TV? | Settings → About (or Device Preferences → About) shows an Android TV OS build | Required. Samsung (Tizen), LG (webOS), Roku and Hisense VIDAA run no Android apps: nothing here works on them. Fire TV is Android-based; untested. |
 | Does the owner want the stock home and its ads gone, and a faster UI? | Ask; look at the home screen | Part 1. Optional, and the biggest change. Parts 2 and 3 work without it. |
 | Do the remote's app buttons work? | Press each one from Home and inside an app | If they work (stock home still enabled), **skip Part 2**: do not enable `KeysService`. Mapping a button that already works makes it do two things. Check again after Part 1. |
-| Does the owner want ad mute? | Ask | Part 3. Works on its own. Prime Video only so far, and the signal must be re-checked on this TV (step B1). |
+| Does the owner want ad mute? | Ask | Part 3. Works on its own. Prime Video only so far, and the signal must be re-checked on this TV (step B1). For any other app, first check whether Private DNS already removes its ads (Part 1, step 8): SonyLIV's were. |
 | Which Android version? | `adb shell getprop ro.build.version.release` | TV Keys is built for Android 11+ (`minSdk 30`). Older needs the changes in A4. |
 
 ## Rules that are not up for negotiation
@@ -113,6 +113,14 @@ changed. Its repo also has instruction files for assistants (`AGENTS.md` and oth
    still work. Undo: `private_dns_mode opportunistic`. It blocks ads that apps fetch from ad servers. It **cannot**
    block ads inside YouTube, Prime Video or Netflix: those come from the same servers as the video (Prime stitches
    them into the stream from `atv-ps.amazon.com`, which it needs to play at all). That is why Part 3 exists.
+   Apps that ask a separate ad server for each ad do lose them. Measured on the original TV (2026-11-06): SonyLIV
+   asks Google's ad server `pubads.g.doubleclick.net` (Google's IMA ad SDK) for an ad when an episode starts; the
+   DNS answers 127.0.0.1, the request fails with `FAILED_TO_REQUEST_ADS`, and the episode plays straight away. The
+   owner saw no ads in episodes after that, and playback was unaffected. To check another app, start a title and
+   read its log (it can hold account ids: keep it private):
+   `adb logcat --pid=$(adb shell pidof <package>) | grep -i -E 'adtag|aderror|doubleclick|failed_to_request_ads'`.
+   SonyLIV's settings also list server-side stitched ads (AWS MediaTailor), unused for the episodes checked. Live
+   channels or other titles may use them, and DNS cannot stop those. Not checked.
 9. **After a firmware update** the disabled apps and the stock home can come back:
    `TV_HOST=<ip> tools/venv/bin/python -I tools/check.py --fix <list>`.
 10. **Undo everything:** `TV_HOST=<ip> tools/restore.sh <list> com.google.android.apps.tv.launcherx` from the
@@ -364,8 +372,9 @@ If the media session shows nothing, the other places checked on Prime were the a
 (`uiautomator dump`; see the warning above). If none of them has a clean signal, **stop and say so**. Do not mute
 on guesses like "volume got louder" or "a new item started".
 
-Not tested at all: SonyLIV (`com.sonyliv`), JioHotstar (`in.startv.hotstar`), Netflix's ad tier, YouTube, live
-streams, and a mid-roll's end with mute switched on. They are not in the app.
+SonyLIV (`com.sonyliv`) needs no mute on the original TV: Private DNS already stops its ads (Part 1, step 8).
+Check that on each TV before adding it here. Not tested at all: JioHotstar (`in.startv.hotstar`), Netflix's ad
+tier, YouTube, live streams, and a mid-roll's end with mute switched on. They are not in the app.
 
 #### B2. Add an app
 
