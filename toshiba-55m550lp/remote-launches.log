@@ -1,0 +1,29 @@
+--------- beginning of main
+--------- beginning of system
+11-05 19:07:52.716 I/ActivityTaskManager(  833): START u0 {act=com.netflix.action.NETFLIX_KEY_START flg=0x10020000 pkg=com.netflix.ninja cmp=com.netflix.ninja/.MainActivity (has extras)} from uid 1000
+11-05 19:07:53.226 I/ActivityTaskManager(  833): Displayed com.netflix.ninja/.MainActivity: +494ms
+11-05 19:08:04.919 I/ActivityTaskManager(  833): START u0 {act=android.intent.action.MAIN cat=[android.intent.category.HOME] flg=0x10000100 cmp=com.gathin.tvhome/.MainActivity (has extras)} from uid 0
+11-05 19:08:16.671 I/ActivityTaskManager(  833): START u0 {act=com.netflix.action.NETFLIX_KEY_START flg=0x10020000 pkg=com.netflix.ninja cmp=com.netflix.ninja/.MainActivity (has extras)} from uid 1000
+11-05 19:08:22.830 I/ActivityTaskManager(  833): START u0 {act=android.intent.action.MAIN cat=[android.intent.category.HOME] flg=0x10000100 cmp=com.gathin.tvhome/.MainActivity (has extras)} from uid 0
+11-05 19:08:46.166 I/ActivityTaskManager(  833): START u0 {act=android.intent.action.ALL_APPS pkg=com.android.tv.settings} from uid 1000
+11-05 19:08:47.582 I/ActivityTaskManager(  833): START u0 {act=android.intent.action.ALL_APPS pkg=com.android.tv.settings} from uid 1000
+11-05 19:08:51.222 I/ActivityTaskManager(  833): START u0 {act=com.netflix.action.NETFLIX_KEY_START flg=0x10020000 pkg=com.netflix.ninja cmp=com.netflix.ninja/.MainActivity (has extras)} from uid 1000
+11-05 19:08:54.293 I/ActivityTaskManager(  833): START u0 {act=android.intent.action.ALL_APPS pkg=com.android.tv.settings} from uid 1000
+11-05 19:08:55.442 I/ActivityTaskManager(  833): START u0 {act=android.intent.action.ALL_APPS pkg=com.android.tv.settings} from uid 1000
+11-05 19:08:55.826 I/ActivityTaskManager(  833): START u0 {act=android.intent.action.ALL_APPS pkg=com.android.tv.settings} from uid 1000
+11-05 19:08:56.130 I/ActivityTaskManager(  833): START u0 {act=android.intent.action.ALL_APPS pkg=com.android.tv.settings} from uid 1000
+11-05 19:08:56.429 I/ActivityTaskManager(  833): START u0 {act=android.intent.action.ALL_APPS pkg=com.android.tv.settings} from uid 1000
+11-05 19:08:56.633 I/ActivityTaskManager(  833): START u0 {act=android.intent.action.ALL_APPS pkg=com.android.tv.settings} from uid 1000
+11-05 19:09:07.768 I/ActivityTaskManager(  833): START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LEANBACK_LAUNCHER] flg=0x10000000 pkg=com.vt.tv.mediacenter cmp=com.vt.tv.mediacenter/.device.DeviceCollectionViewActivity} from uid 1000
+11-05 19:09:07.838 W/InputDispatcher(  833): Excessive delay in interceptKeyBeforeDispatching; took 76 ms
+11-05 19:09:09.318 I/ActivityTaskManager(  833): Displayed com.vt.tv.mediacenter/.device.DeviceCollectionViewActivity: +1s299ms
+11-05 19:09:21.817 I/ActivityTaskManager(  833): START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10000000 cmp=com.google.android.apps.tv.launcherx/.profile.chooser.ProfileChooserActivity} from uid 1000
+11-05 19:09:24.567 I/ActivityTaskManager(  833): START u0 {act=android.intent.action.MAIN cat=[android.intent.category.HOME] flg=0x10000100 cmp=com.gathin.tvhome/.MainActivity (has extras)} from uid 0
+11-05 19:09:26.459 I/ActivityTaskManager(  833): START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10000000 cmp=com.google.android.apps.tv.launcherx/.profile.chooser.ProfileChooserActivity} from uid 1000
+11-05 19:10:10.599 I/ActivityTaskManager(  833): START u0 {act=android.mtk.intent.action.ACTION_REQUEST_TOP_RESUME flg=0x10000000 cmp=com.mediatek.wwtv.tvcenter/.LiveTVMainActivity (has extras)} from uid 1000
+11-05 19:10:11.516 I/ActivityTaskManager(  833): Displayed com.mediatek.wwtv.tvcenter/.LiveTVMainActivity: +896ms
+11-05 19:10:24.932 I/ActivityTaskManager(  833): START u0 {act=android.intent.action.MAIN cat=[android.intent.category.HOME] flg=0x10000100 cmp=com.gathin.tvhome/.MainActivity (has extras)} from uid 0
+11-05 19:10:57.499 I/ActivityTaskManager(  833): START u0 {act=android.settings.SETTINGS flg=0x10000000 cmp=com.android.tv.settings/.MainSettings} from uid 10069
+11-05 19:10:57.517 W/ActivityTaskManager(  833): Tried to set launchTime (0) < mLastActivityLaunchTime (3073819)
+11-05 19:10:57.951 I/ActivityTaskManager(  833): Displayed com.android.tv.settings/.MainSettings: +408ms
+11-05 19:12:19.576 W/InputDispatcher(  833): Excessive delay in interceptKeyBeforeDispatching; took 88 ms

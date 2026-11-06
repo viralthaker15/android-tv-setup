@@ -1,0 +1,165 @@
+diff --git a/launcher/app/src/main/java/com/gathin/tvhome/MainActivity.java b/launcher/app/src/main/java/com/gathin/tvhome/MainActivity.java
+index 870ca516..debf7769 100644
+--- a/launcher/app/src/main/java/com/gathin/tvhome/MainActivity.java
++++ b/launcher/app/src/main/java/com/gathin/tvhome/MainActivity.java
+@@ -1083,6 +1083,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
+     protected void onResume() {
+         super.onResume();
+         resumed = true;
++        AnimationScale.applyNowAndLater(this);   // local: firmware resets the scales to 1.0 at boot and after launches
+         // A festival that started or ended while Home was in the background: rebuild with or without it.
+         if (festive != festival.active(LocalDate.now())) {
+             recreate();
+@@ -1299,6 +1300,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
+     protected void onPause() {
+         super.onPause();
+         resumed = false;
++        AnimationScale.cancel();
+         // No UP reaches a paused Home, so a vendor-key hold it saw go down would still open its app later.
+         // Only Home's own share is dropped: a key service that saw the same DOWN keeps its hold.
+         RemoteKeys.release(this);
+diff --git a/launcher/app/src/main/res/values/config.xml b/launcher/app/src/main/res/values/config.xml
+index 2255d16f..71aa2e89 100644
+--- a/launcher/app/src/main/res/values/config.xml
++++ b/launcher/app/src/main/res/values/config.xml
+@@ -82,14 +82,18 @@
+          opens that URI in the package instead (ACTION_VIEW): Bbox TV's live channels are
+          fr.bouyguestelecom.tv.bbui=view:bbox://live. -->
+     <string-array name="launch_actions">
++        <!-- Local: the Screen Mirroring tile becomes "PS5" and switches straight to HDMI 1 (HW4, hdmi_port=1) -->
++        <item>com.vt.miracast=input:com.hisense.tv.hitvinput/.hdmi.HdmiTvInputService/HW4</item>
+     </string-array>
+ 
+     <!-- A tile's name instead of the app's own: "package=Name". It also shows above the dock. -->
+     <string-array name="app_labels">
++        <item>com.vt.miracast=PS5</item>
+     </string-array>
+     <!-- A tile's artwork instead of the app's banner: "package=drawable", a banner_* drawable bundled with the
+          launcher (res/drawable). banner_tv is a magenta field with the Live TV glyph. -->
+     <string-array name="app_banners">
++        <item>com.vt.miracast=banner_ps5</item>
+     </string-array>
+ 
+     <!-- TVs with no TvInputManager have no HDMI list to read, but their own source-selection panel
+@@ -220,6 +224,12 @@
+          where the firmware hands KEYCODE_GUIDE (172) to the stock launcher and no app ever receives it. Leave empty
+          to omit. -->
+     <string-array name="app_keys" translatable="false">
++        <!-- Toshiba 55M550LP, IR remote CT-95042 (Vendor_3697_Product_0001), scancodes from getevent -p -->
++        <item>scan:598:settings</item>                           <!-- gear, KEY_NOTIFICATION -->
++        <item>scan:469:com.google.android.youtube.tv</item>      <!-- YouTube, KEY_FN_F4 -->
++        <item>scan:468:com.amazon.amazonvideo.livingroom</item>  <!-- Prime Video, KEY_FN_F3 -->
++        <item>scan:466:com.android.vending</item>                <!-- Google Play, KEY_FN_F1 -->
++        <item>scan:188:library</item>                            <!-- Apps grid, KEY_F18 -->
+     </string-array>
+ 
+     <!-- Package of the stock launcher, for TVs whose firmware turns it back on after it was disabled. XGIMI's
+@@ -407,7 +417,7 @@
+     <bool name="show_home_settings_shortcut">false</bool>
+ 
+     <!-- Installed launchable apps, including ordinary Android apps. Also settable in config.json. -->
+-    <bool name="app_library">false</bool>
++    <bool name="app_library">true</bool>
+     <!-- Every app tile is its icon on a card tinted from that icon, name only under the focused tile,
+          instead of each app's own banner. Off by default; a theme can set "uniform_tiles": true. -->
+     <bool name="uniform_tiles">false</bool>
+@@ -539,4 +549,9 @@
+     <!-- Tiles drawn from the app's icon and name instead of its banner (for banners that crop badly). -->
+     <string-array name="icon_tiles" translatable="false">
+     </string-array>
++
++    <!-- Local addition: put window/transition/animator scales back to this value each time Home resumes (the
++         Toshiba 55M550LP firmware resets them to 1.0 at boot). Needs WRITE_SECURE_SETTINGS (RESTORE_KEY_SERVICES=1
++         at install). Empty leaves them alone. -->
++    <string name="system_animation_scale" translatable="false">0.5</string>
+ </resources>
+diff --git a/launcher/app/src/main/java/com/gathin/tvhome/AnimationScale.java b/launcher/app/src/main/java/com/gathin/tvhome/AnimationScale.java
+new file mode 100644
+index 00000000..8bb1bcb4
+--- /dev/null
++++ b/launcher/app/src/main/java/com/gathin/tvhome/AnimationScale.java
+@@ -0,0 +1,84 @@
++package com.gathin.tvhome;
++
++import android.Manifest;
++import android.content.ContentResolver;
++import android.content.Context;
++import android.content.pm.PackageManager;
++import android.os.Handler;
++import android.os.Looper;
++import android.provider.Settings;
++
++/**
++ * Local addition (Toshiba 55M550LP): the firmware's system_server writes the three animation scales back to 1.0 on
++ * every boot (`dumpsys settings` shows pkg:android). config.xml's system_animation_scale, when set, is put back each
++ * time Home resumes. Needs WRITE_SECURE_SETTINGS, granted over ADB (install with RESTORE_KEY_SERVICES=1); without it
++ * this does nothing. Only writes when a value differs, so a normal resume costs three settings reads.
++ */
++final class AnimationScale {
++    private static final String TAG = "AnimationScale";
++    private static final String[] KEYS = {
++            Settings.Global.WINDOW_ANIMATION_SCALE,
++            Settings.Global.TRANSITION_ANIMATION_SCALE,
++            Settings.Global.ANIMATOR_DURATION_SCALE,
++    };
++
++    /** The firmware zeroes window/transition scales while an app starts, then writes 1.0 back ~3 s later. */
++    private static final long SECOND_PASS_MS = 5000;
++    private static final Handler HANDLER = new Handler(Looper.getMainLooper());
++    private static Runnable pending;
++
++    private AnimationScale() {
++    }
++
++    /** Applies now (catches the boot reset) and once more after the firmware's post-launch restore. */
++    static void applyNowAndLater(Context context) {
++        apply(context);
++        cancel();
++        final Context app = context.getApplicationContext();
++        pending = new Runnable() {
++            @Override
++            public void run() {
++                pending = null;
++                apply(app);
++            }
++        };
++        HANDLER.postDelayed(pending, SECOND_PASS_MS);
++    }
++
++    /** Home was left before the second pass: an app is starting, and the firmware owns the scales for now. */
++    static void cancel() {
++        if (pending != null) HANDLER.removeCallbacks(pending);
++        pending = null;
++    }
++
++    static void apply(Context context) {
++        String value = context.getString(R.string.system_animation_scale).trim();
++        if (value.isEmpty()) return;
++        float target;
++        try {
++            target = Float.parseFloat(value);
++        } catch (NumberFormatException e) {
++            return;
++        }
++        if (target < 0f || target > 10f) return;
++        if (context.checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS)
++                != PackageManager.PERMISSION_GRANTED) {
++            android.util.Log.i(TAG, "no WRITE_SECURE_SETTINGS; leaving the scales alone");
++            return;
++        }
++        ContentResolver resolver = context.getContentResolver();
++        for (String key : KEYS) {
++            try {
++                float before = Settings.Global.getFloat(resolver, key, 1f);
++                if (before != target) {
++                    boolean ok = Settings.Global.putFloat(resolver, key, target);
++                    android.util.Log.i(TAG, key + " " + before + " -> " + target + " put=" + ok
++                            + " now=" + Settings.Global.getFloat(resolver, key, -1f));
++                }
++            } catch (RuntimeException e) {
++                android.util.Log.w(TAG, key + " write failed", e);
++                return;
++            }
++        }
++    }
++}

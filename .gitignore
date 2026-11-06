@@ -1,0 +1,13 @@
+.DS_Store
+tv-keys/build/
+keys-*.log
+__pycache__/
+
+# Kept on the owner's computer only: raw dumps with the TV's serial, Android ID, Bluetooth address and network
+# names; screenshots showing the profile photo or the Wi-Fi name; the PlayStation logo; a gallery of third-party
+# wallpapers without their credits.
+toshiba-55m550lp/snapshot-before/
+toshiba-55m550lp/home-after-launcher.png
+toshiba-55m550lp/banner_ps5.jpg
+toshiba-55m550lp/banner_ps5-original-design.png
+toshiba-55m550lp/theme-gallery.html

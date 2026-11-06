@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TV Keys</string>
+    <string name="service_label">TV Keys</string>
+    <string name="admute_label">TV Keys ad mute</string>
+    <string name="service_description">Opens apps from the remote\'s app buttons. Reads the system key log; does not filter, read or change any keys.</string>
+</resources>

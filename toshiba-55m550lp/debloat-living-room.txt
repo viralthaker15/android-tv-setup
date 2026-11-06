@@ -1,0 +1,39 @@
+# Living Room TV: Toshiba 55M550LP (Hisense-built, device songshan, Android 11, firmware 01.03.05.04)
+# Based on ~/Documents/learning/cleanyourtv/examples/toshiba-55m550lp/debloat.txt and its parent
+# examples/hisense-smarttv-4k-ffm-android11/debloat.txt (seven units of this board).
+#
+# Apply:  cd ~/Documents/learning/cleanyourtv && TV_HOST=192.168.0.91 tools/disable.sh "<this file>"
+# Undo:   cd ~/Documents/learning/cleanyourtv && TV_HOST=192.168.0.91 tools/restore.sh "<this file>" com.google.android.apps.tv.launcherx
+# Everything is DISABLED with pm disable-user --user 0, never uninstalled.
+#
+# NEVER add (bricks inputs, remote or boot on this board): com.hisense.uifac, com.hisense.tv.smartsense,
+# com.vt.tv.smartsense.ui, com.vt.tv.aiot, com.mediatek.*, com.hisense.tv.hitvinput, com.vt.tv.input,
+# com.hisense.tv.smartservice, com.hisense.tv.customerlauncher, com.hisense.tv.protector.
+# Kept on purpose: firmware updaters (hisense.tv.ota, hisense.remoteupgrade, vt.tv.usbota), AirPlay
+# (com.mediatek.AirplayAPK, com.mediatek.partner.airplay), Gboard, Play Store, YouTube.
+
+# --- Retail demo and first-run leftovers ---
+com.hisense.storemode
+fusion.android.tv.demo
+com.hisense.fte
+com.mstar.android.tv.disclaimercustomization
+
+# --- Silent partner installs, attribution and feedback telemetry ---
+android.autoinstalls.config.google.gtvpai
+com.google.android.partnersetup
+com.google.android.feedback
+
+# --- Your choices (2026-11-05): Google store extras and YouTube Music off ---
+com.google.android.videos                    # Google TV Movies & TV storefront
+com.google.android.play.games                # Play Games
+com.google.android.apps.nbu.smartconnect.tv  # Smart Connect
+com.google.android.syncadapters.calendar     # calendar sync
+com.google.android.youtube.tvmusic           # YouTube Music
+# Kept by choice: Chromecast built-in (mediashell), Miracast, DLNA, Kika keyboard, HiBrowser,
+# Google Assistant (katniss + tv.assistant), Netflix, Prime Video, and all 18 Play Store apps you installed.
+
+# --- Phase 2, for the launcher swap (added after Usage & diagnostics is switched off) ---
+# Google TV setup wizard: its RecoveryActivity takes Home once launcherx is off. It owns only the stale
+# saved network #0 (an old one); the active home network (#4) belongs to android.uid.system, so
+# disable.sh needs FORCE_SETUPWRAITH=1 and only that stale entry is deleted.
+com.google.android.tungsten.setupwraith

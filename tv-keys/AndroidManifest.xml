@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TV Keys: makes the remote's app buttons work on a debloated Toshiba 55M550LP without filtering keys.
+     No INTERNET permission. READ_LOGS is granted over ADB (pm grant), never at runtime. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="dev.viral.tvkeys">
+
+    <uses-permission android:name="android.permission.READ_LOGS" />
+
+    <uses-feature android:name="android.software.leanback" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+
+    <!-- Android 11+ hides other apps unless they are listed here (package visibility). -->
+    <queries>
+        <package android:name="com.android.tv.settings" />
+        <package android:name="com.google.android.youtube.tv" />
+        <package android:name="com.amazon.amazonvideo.livingroom" />
+        <package android:name="com.android.vending" />
+        <package android:name="com.gathin.tvhome" />
+    </queries>
+
+    <application
+        android:label="@string/app_name"
+        android:allowBackup="false">
+
+        <!-- Bound by the system only so this process runs and comes back after a reboot.
+             It asks for no key filtering and no window content: dumpsys accessibility shows capabilities=0. -->
+        <service
+            android:name=".KeysService"
+            android:label="@string/service_label"
+            android:exported="true"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/keys_service" />
+        </service>
+
+        <!-- Ad mute for Prime Video. A notification listener only because that is how an app may watch other
+             apps' media sessions; it ignores notifications. Enabled with: cmd notification allow_listener
+             dev.viral.tvkeys/dev.viral.tvkeys.AdMuteService -->
+        <service
+            android:name=".AdMuteService"
+            android:label="@string/admute_label"
+            android:exported="true"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+    </application>
+</manifest>

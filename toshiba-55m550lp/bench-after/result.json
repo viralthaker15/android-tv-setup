@@ -1,0 +1,602 @@
+{
+  "launcher": "com.gathin.tvhome/.MainActivity",
+  "version": "3.3",
+  "package": "com.gathin.tvhome",
+  "host": "192.168.0.91",
+  "environment": {
+    "android_release": "11",
+    "sdk": "30",
+    "model": "Toshiba TV with MIC",
+    "fingerprint": "Toshiba/songshan_emT_FFM/songshan:11/RTT2.220118.001/01.03.05.04:user/release-keys"
+  },
+  "keys": {
+    "series": 3,
+    "per_series": 36,
+    "measured": 2,
+    "lost": 106
+  },
+  "response_ms": {
+    "p50": 74,
+    "p95": 135.5,
+    "p99": 135.5,
+    "max": 135.5,
+    "n": 2
+  },
+  "movement_ms": {
+    "p50": 81,
+    "p95": 148.6,
+    "p99": 148.6,
+    "max": 148.6,
+    "n": 2
+  },
+  "jank_pct": 80.82,
+  "frames": 73,
+  "janky_frames": 59,
+  "cold_start_ms": {
+    "p50": 855,
+    "p95": 1068,
+    "p99": 1068,
+    "max": 1068,
+    "n": 5
+  },
+  "return_to_home_ms": {
+    "p50": null,
+    "p95": null,
+    "p99": null,
+    "max": null,
+    "n": 0
+  },
+  "idle_cpu_pct": 20.2,
+  "idle_launcher_cpu_pct": 0.0,
+  "pss_mb": 40,
+  "samples": [
+    {
+      "series": 1,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 20,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 19,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 20,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 19,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 20,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 1,
+      "key": 19,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 20,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 19,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 20,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 19,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 20,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 2,
+      "key": 19,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 20,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 19,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 22,
+      "measured": true,
+      "response_ms": 135.5,
+      "movement_ms": 148.6,
+      "frames": 38,
+      "janky": 28
+    },
+    {
+      "series": 3,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 20,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 21,
+      "measured": true,
+      "response_ms": 13.5,
+      "movement_ms": 13.5,
+      "frames": 35,
+      "janky": 31
+    },
+    {
+      "series": 3,
+      "key": 19,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 20,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 22,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 21,
+      "measured": false
+    },
+    {
+      "series": 3,
+      "key": 19,
+      "measured": false
+    }
+  ]
+}

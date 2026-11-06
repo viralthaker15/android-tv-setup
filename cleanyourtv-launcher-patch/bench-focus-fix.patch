@@ -1,0 +1,15 @@
+diff --git a/tools/bench.py b/tools/bench.py
+index 2532f567..b2bffca1 100644
+--- a/tools/bench.py
++++ b/tools/bench.py
+@@ -184,7 +184,9 @@ class TV:
+         The dump has several "mCurrentFocus"/"mFocusedApp" lines; only the one that names a
+         window counts, and a popup (a menu left open) is a window of its own.
+         """
+-        out = self.shell("dumpsys window")
++        # Local fix: `dumpsys window` starts with the LAST ANR section, whose stale mCurrentFocus
++        # (a Settings ANR on this TV) was read as the live focus. `displays` holds only the live one.
++        out = self.shell("dumpsys window displays")
+         for line in out.splitlines():
+             match = re.search(r"mCurrentFocus=Window\{[^}]*\s(\S+?)\}", line)
+             if match:
