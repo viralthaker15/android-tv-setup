@@ -434,6 +434,10 @@ adb logcat -s TVKeys.AdMute      # every decision, with state/speed/actions
   installed (likely IR and Bluetooth both delivering the press). Measure before install so you can tell.
 - A firmware update can drop the debug key lines. If the buttons stop after an update, run A1 again.
 - Screenshots of playing video come out black on this TV (hardware video layer); time things with a remote press.
+- A "close background apps" button can't be built as an ordinary app on current firmware: since Android 14, and on
+  the Toshiba's Android 11 with the 2026-04 security patch too, `ActivityManager.killBackgroundProcesses` refuses
+  other apps (`Invalid packageName` in the log) and only ends the caller's own processes. Tried in TV Keys 1.4 and
+  taken out (change log T15). Android closes background apps itself when memory runs short.
 - logcat's `-e` regex is applied to every line of the process and is expensive (4.2 % of one core on SonyLIV's log,
   against 0.15 % with tag filters `-s`); filter by tag and match in the app.
 
