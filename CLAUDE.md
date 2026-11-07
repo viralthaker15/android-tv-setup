@@ -11,10 +11,10 @@ as such. Anything about other brands comes from the CleanYourTV device notes (li
 |---|---|---|
 | 1. Clean-up | (uses [CleanYourTV](https://github.com/Gathin23/CleanYourTV)) + `cleanyourtv-launcher-patch/` | Removes the stock Google TV home and its full-screen ads, disables preloaded junk, replaces Home with a light launcher, blocks ad/tracker domains, keeps animations at 0.5×. |
 | 2. Remote buttons | `tv-keys/` (`KeysService`) | Removing the stock home kills the remote's app buttons. TV Keys makes them work again **without filtering keys**, so a held Volume+ still ramps smoothly. |
-| 3. Ad mute | `tv-keys/` (`AdMuteService`) | Mutes the TV while Prime Video plays an ad and puts the sound back the moment it ends. Mute only: never skips, seeks past or blocks an ad. |
+| 3. Ad mute | `tv-keys/` (`AdMuteService`) | Mutes the TV while Prime Video plays an ad, or while a SonyLIV live match is in an ad break, and puts the sound back the moment it ends. Mute only: never skips, seeks past or blocks an ad. |
 | The original TV | `toshiba-55m550lp/` | The full record: every change with its undo (`CHANGES.md`), results (`README.md`, `before-after.html`), the debloat list, the theme, benchmarks. |
 
-TV Keys is one 21 KB app (`dev.viral.tvkeys`, no internet permission). Its two parts are independent.
+TV Keys is one 25 KB app (`dev.viral.tvkeys`, no internet permission). Its two parts are independent.
 
 ## First decide what applies to this TV
 
@@ -23,7 +23,7 @@ TV Keys is one 21 KB app (`dev.viral.tvkeys`, no internet permission). Its two p
 | Is it Android TV / Google TV? | Settings → About (or Device Preferences → About) shows an Android TV OS build | Required. Samsung (Tizen), LG (webOS), Roku and Hisense VIDAA run no Android apps: nothing here works on them. Fire TV is Android-based; untested. |
 | Does the owner want the stock home and its ads gone, and a faster UI? | Ask; look at the home screen | Part 1. Optional, and the biggest change. Parts 2 and 3 work without it. |
 | Do the remote's app buttons work? | Press each one from Home and inside an app | If they work (stock home still enabled), **skip Part 2**: do not enable `KeysService`. Mapping a button that already works makes it do two things. Check again after Part 1. |
-| Does the owner want ad mute? | Ask | Part 3. Works on its own. Prime Video only so far, and the signal must be re-checked on this TV (step B1). For any other app, first check whether Private DNS already removes its ads (Part 1, step 8): SonyLIV's were. |
+| Does the owner want ad mute? | Ask | Part 3. Works on its own. Prime Video and SonyLIV live matches so far, and each signal must be re-checked on this TV (step B1). For any other app, first check whether Private DNS already removes its ads (Part 1, step 8): it did for SonyLIV's episodes, not for its live matches. |
 | Which Android version? | `adb shell getprop ro.build.version.release` | TV Keys is built for Android 11+ (`minSdk 30`). Older needs the changes in A4. |
 
 ## Rules that are not up for negotiation
@@ -119,8 +119,8 @@ changed. Its repo also has instruction files for assistants (`AGENTS.md` and oth
    owner saw no ads in episodes after that, and playback was unaffected. To check another app, start a title and
    read its log (it can hold account ids: keep it private):
    `adb logcat --pid=$(adb shell pidof <package>) | grep -i -E 'adtag|aderror|doubleclick|failed_to_request_ads'`.
-   SonyLIV's settings also list server-side stitched ads (AWS MediaTailor), unused for the episodes checked. Live
-   channels or other titles may use them, and DNS cannot stop those. Not checked.
+   SonyLIV's live matches are different: their ads are stitched into the stream on the server (AWS Elemental
+   MediaTailor), so they come through. Part 3 mutes them.
 9. **After a firmware update** the disabled apps and the stock home can come back:
    `TV_HOST=<ip> tools/venv/bin/python -I tools/check.py --fix <list>`.
 10. **Undo everything:** `TV_HOST=<ip> tools/restore.sh <list> com.google.android.apps.tv.launcherx` from the
@@ -350,8 +350,31 @@ plays at speed 1, so it is not muted. Prime's own log lines and its accessibilit
 player is a GL surface). The Bluetooth stack's `AvrcpMediaPlayerList: sendMediaUpdate` log lines show session
 changes with timestamps, which helps line up timings.
 
+**SonyLIV live matches' signal** (measured on the Toshiba on 2026-11-07, during the India vs NZ one-day match: eight
+mid-roll breaks and a pre-roll; the owner timed three breaks and the pre-roll by pressing a remote button, and heard
+the mute work). The media session shows nothing: PLAYING, speed 1, seek allowed, also during ads. SonyLIV's own
+"ad playing" log flag stays false. The ads are stitched into the stream on the server by AWS Elemental MediaTailor.
+Two log lines from SonyLIV's process carry it instead, read by `SonyLivAds.java`:
+
+| Log line | What it shows | Timing |
+|---|---|---|
+| `OkHttp: ... callStart: Request{method=GET, url=https://.../v1/segment/...}` | SonyLIV is loading ad video (MediaTailor's ad path). Match video is `.ts` files on `*.slivcdn.com`; the CDN host and path change between streams | 0.5–6.4 s before the screen changes: the player loads ahead |
+| `CCodecConfig: c2 config diff is ...` | The audio decoder is reconfigured as playback crosses between match and ad | 1.0–1.9 s before each of the owner's presses, i.e. the moment itself |
+
+Each switch in what is being loaded is queued; each decoder change applies the oldest queued switch. A decoder
+change with nothing queued is ignored: pause and resume, a commentary-language change and reopening the match all
+reconfigure the decoder without a switch, and were tested. Breaks were 40 s (one 2 min), the pre-roll 19 s. The
+reader runs only while SonyLIV has a media session, filtered to its process inside logd (`--pid`). It replays the
+last 15 s when it starts, because a pre-roll begins about a second before SonyLIV publishes its session, so a
+pre-roll is muted 1–2 s late. If TV Keys starts in the middle of a stream it waits for the next switch. While
+SonyLIV plays it costs 0.5 % of one core in all (do **not** use logcat's `-e` regex filter here: it cost 4.2 %).
+SonyLIV's episodes never load from the ad path, so they are untouched. This depends on SonyLIV logging its HTTP
+requests; if an update stops that, nothing is muted, which is the safe way to fail. On another TV, check that both
+lines appear (`adb logcat --pid=$(adb shell pidof com.sonyliv) -s OkHttp:I CCodecConfig:D`) and re-time them.
+
 Safety, all in the code: the "muted by us" flag is saved (`commit()`) before muting. It unmutes when the ad ends,
-when the app pauses/stops/goes away, when the service restarts or is unbound, and after 5 minutes at most. If the
+when the app pauses/stops/goes away, when the service restarts or is unbound, and after 5 minutes at most (for
+SonyLIV also when the match has been loading for 20 s without a decoder change). If the
 TV was already muted it does nothing. If the owner unmutes or changes the volume during the ad
 (`android.media.STREAM_MUTE_CHANGED_ACTION`), it lets go until the next ad. It never touches the volume level.
 
@@ -372,15 +395,23 @@ If the media session shows nothing, the other places checked on Prime were the a
 (`uiautomator dump`; see the warning above). If none of them has a clean signal, **stop and say so**. Do not mute
 on guesses like "volume got louder" or "a new item started".
 
-SonyLIV (`com.sonyliv`) needs no mute on the original TV: Private DNS already stops its ads (Part 1, step 8).
-Check that on each TV before adding it here. Not tested at all: JioHotstar (`in.startv.hotstar`), Netflix's ad
-tier, YouTube, live streams, and a mid-roll's end with mute switched on. They are not in the app.
+How SonyLIV's signal was found, in case another app needs the same: record the whole log while the owner watches
+(`adb logcat -v threadtime -b main > live.txt`), then line up what the app logs with the breaks. Screenshots don't
+help: on this TV video is on a hardware layer and comes out black. Instead have the owner press a remote button that
+does nothing (here Profile, keyCode 288; check the app ignores it) at each ad start and end: every press is in the
+log to the millisecond (`interceptKeyTi keyCode=288 down=true`). Before installing, replay the recording through
+the rule and check it mutes before every press and never elsewhere.
+
+SonyLIV (`com.sonyliv`): on the original TV its episodes need no mute (Private DNS stops their ads, Part 1 step 8)
+and its live matches are muted with the log signal above. Not tested at all: JioHotstar (`in.startv.hotstar`),
+Netflix's ad tier, YouTube, Prime Video live streams, and a Prime mid-roll's end with mute switched on. They are
+not in the app.
 
 #### B2. Add an app
 
 - Add its package to `APPS` in `AdMuteService.java`.
-- If its signal differs from Prime's, make the ad rule per package (`evaluate()` currently encodes Prime's rule
-  for every app in `APPS`).
+- Give it its own rule: Prime's is `evaluate()` in `AdMuteService.java`, SonyLIV's is `SonyLivAds.java` (the
+  service sends SonyLIV's sessions there instead of to `evaluate()`).
 - Build, install, then enable the listener (the owner can also do it in Settings → Apps → Special app access →
   Notification access):
 
@@ -402,6 +433,9 @@ adb logcat -s TVKeys.AdMute      # every decision, with state/speed/actions
 - Some single Volume− taps on the Toshiba logged two steps 5 ms apart. That was there before TV Keys was
   installed (likely IR and Bluetooth both delivering the press). Measure before install so you can tell.
 - A firmware update can drop the debug key lines. If the buttons stop after an update, run A1 again.
+- Screenshots of playing video come out black on this TV (hardware video layer); time things with a remote press.
+- logcat's `-e` regex is applied to every line of the process and is expensive (4.2 % of one core on SonyLIV's log,
+  against 0.15 % with tag filters `-s`); filter by tag and match in the app.
 
 ## Closing up
 
@@ -443,7 +477,8 @@ is on, watch one ad) to confirm it on their TV.
 | `toshiba-55m550lp/bench-*/result.json` | CleanYourTV benchmark results before, mid-way and after |
 | `cleanyourtv-launcher-patch/` | The local launcher changes as patches, with what each one is for |
 | `tv-keys/src/dev/viral/tvkeys/KeysService.java` | The key reader and button map |
-| `tv-keys/src/dev/viral/tvkeys/AdMuteService.java` | Ad mute |
+| `tv-keys/src/dev/viral/tvkeys/AdMuteService.java` | Ad mute (Prime Video's rule, the mute itself and its safety) |
+| `tv-keys/src/dev/viral/tvkeys/SonyLivAds.java` | SonyLIV live matches' ad signal, from SonyLIV's log |
 | `tv-keys/AndroidManifest.xml`, `tv-keys/res/` | Permissions (`READ_LOGS` only), services, `<queries>`, accessibility config |
 | `tv-keys/build.sh` | Build without Gradle |
 | `tv-keys/tools/find-keys.sh` | A1: record the key lines while the owner presses buttons |

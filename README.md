@@ -12,7 +12,7 @@ can do the same on theirs.
 | Animations | 1.0× | 0.5×, kept after reboots |
 | Remote app buttons (gear, YouTube, Prime, Play, Apps) | worked | dead after removing the stock home, then **back** with TV Keys, and a held volume key still ramps |
 | Prime Video ads | loud | **muted** while they play, sound back the moment they end (nothing skipped) |
-| SonyLIV ads | shown | **gone**: the DNS filter blocks the ad request, so episodes start straight away |
+| SonyLIV ads | shown | episodes: **gone** (the DNS filter blocks the ad request); live matches: **muted** while they play |
 | Ad and tracker domains | resolve | blocked (AdGuard Private DNS) |
 
 Screenshots and the per-process numbers: [`toshiba-55m550lp/before-after.html`](toshiba-55m550lp/before-after.html)
@@ -27,7 +27,7 @@ can follow it. Your TV must run Android TV / Google TV; Samsung, LG, Roku and VI
 | Folder | What |
 |---|---|
 | [`toshiba-55m550lp/`](toshiba-55m550lp/) | The original TV: every change with its exact undo, results, debloat list, theme, benchmarks |
-| [`tv-keys/`](tv-keys/) | TV Keys, a 21 KB Android app (no internet permission): remote buttons without a key filter, and Prime Video ad mute |
+| [`tv-keys/`](tv-keys/) | TV Keys, a 25 KB Android app (no internet permission): remote buttons without a key filter, and ad mute for Prime Video and SonyLIV live matches |
 | [`cleanyourtv-launcher-patch/`](cleanyourtv-launcher-patch/) | Small changes to the CleanYourTV launcher (animation scale fix, PS5 tile) |
 
 ## Credits

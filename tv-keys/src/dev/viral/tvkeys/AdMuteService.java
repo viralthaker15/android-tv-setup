@@ -25,8 +25,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * Mutes the TV while Prime Video plays an ad, and unmutes when the ad ends. Mute only: it never skips, seeks or
- * blocks anything.
+ * Mutes the TV while Prime Video plays an ad, or while a SonyLIV live match is in an ad break, and unmutes when the
+ * ad ends. Mute only: it never skips, seeks or blocks anything. SonyLIV's signal is in {@link SonyLivAds}.
  *
  * The signal is Prime's own media session (measured 2026-11-06, a pre-roll and a mid-roll on two titles): during an
  * ad break Prime reports STATE_PLAYING with playback speed 0 and takes away the seek actions (SEEK_TO, FAST_FORWARD,
@@ -40,14 +40,15 @@ import java.util.TreeSet;
  * that exists only while the TV is muted.
  *
  * Never leaves the TV muted: the "we muted it" flag is saved before muting, and is undone when the ad ends, when
- * Prime pauses, stops or goes away, when this service is unbound or restarted (a crash), and after 5 minutes at most.
+ * the app pauses, stops or goes away, when this service is unbound or restarted (a crash), and after 5 minutes at most.
  * If you change the volume or mute yourself during an ad, it leaves the sound as you set it.
  */
 public final class AdMuteService extends NotificationListenerService {
     private static final String TAG = "TVKeys.AdMute";
 
-    /** Apps whose ad signal was verified. SonyLIV and JioHotstar were not tested, so they are not here. */
-    private static final Set<String> APPS = Set.of("com.amazon.amazonvideo.livingroom");
+    /** Apps whose ad signal was verified. JioHotstar was not tested, so it is not here. */
+    private static final String PRIME = "com.amazon.amazonvideo.livingroom";
+    private static final Set<String> APPS = Set.of(PRIME, SonyLivAds.PACKAGE);
 
     private static final long SEEK_ACTIONS = PlaybackState.ACTION_SEEK_TO;
     private static final long MAX_MUTE_MS = 5 * 60_000L;
@@ -66,9 +67,11 @@ public final class AdMuteService extends NotificationListenerService {
     private SharedPreferences prefs;
     private MediaSessionManager.OnActiveSessionsChangedListener sessionsListener;
 
-    /** The session that is in an ad break right now, or null. */
+    /** The Prime Video session that is in an ad break right now, or null. */
     private MediaSession.Token inAd;
     private boolean watchingMute;
+    private SonyLivAds sonyLiv;
+    private boolean mutedForSonyLiv;
 
     private final Runnable safetyNet = () -> unmuteIfOurs("still muted after 5 minutes");
 
@@ -92,6 +95,7 @@ public final class AdMuteService extends NotificationListenerService {
         prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
         // A previous instance was stopped or crashed while it had the TV muted.
         unmuteIfOurs("restarted");
+        sonyLiv = new SonyLivAds(handler, this::onSonyLivAd);
         ComponentName me = new ComponentName(this, AdMuteService.class);
         sessionsListener = this::onSessionsChanged;
         try {
@@ -125,6 +129,7 @@ public final class AdMuteService extends NotificationListenerService {
         controllers.clear();
         callbacks.clear();
         inAd = null;
+        if (sonyLiv != null) sonyLiv.stop(why);
         handler.removeCallbacks(safetyNet);
         if (prefs != null) unmuteIfOurs(why);
     }
@@ -137,10 +142,15 @@ public final class AdMuteService extends NotificationListenerService {
                 MediaSession.Token token = c.getSessionToken();
                 present.add(token);
                 if (controllers.containsKey(token)) continue;
+                boolean isSonyLiv = SonyLivAds.PACKAGE.equals(c.getPackageName());
                 MediaController.Callback cb = new MediaController.Callback() {
                     @Override
                     public void onPlaybackStateChanged(PlaybackState state) {
-                        evaluate(c, state);
+                        if (isSonyLiv) {
+                            sonyLiv.onPlaybackState(state == null ? PlaybackState.STATE_NONE : state.getState());
+                        } else {
+                            evaluate(c, state);
+                        }
                     }
 
                     @Override
@@ -151,11 +161,35 @@ public final class AdMuteService extends NotificationListenerService {
                 c.registerCallback(cb, handler);
                 controllers.put(token, c);
                 callbacks.put(token, cb);
-                evaluate(c, c.getPlaybackState());
+                if (!isSonyLiv) evaluate(c, c.getPlaybackState());
             }
         }
         for (MediaSession.Token token : new HashSet<>(controllers.keySet())) {
             if (!present.contains(token)) forget(token, "session no longer active");
+        }
+        followSonyLiv();
+    }
+
+    /** SonyLIV's log is read only while it has a media session. */
+    private void followSonyLiv() {
+        for (MediaController c : controllers.values()) {
+            if (SonyLivAds.PACKAGE.equals(c.getPackageName())) {
+                sonyLiv.start();
+                return;
+            }
+        }
+        sonyLiv.stop("SonyLIV closed");
+    }
+
+    private void onSonyLivAd(boolean adOnScreen, String why) {
+        if (adOnScreen) {
+            Log.i(TAG, why);
+            if (mutedByUs()) return;
+            mutedForSonyLiv = true;
+            mute();
+        } else if (mutedForSonyLiv) {
+            mutedForSonyLiv = false;
+            unmuteIfOurs(why);
         }
     }
 
@@ -164,6 +198,7 @@ public final class AdMuteService extends NotificationListenerService {
         MediaController.Callback cb = callbacks.remove(token);
         if (c != null && cb != null) c.unregisterCallback(cb);
         if (token.equals(inAd)) adEnded(why);
+        if (c != null && SonyLivAds.PACKAGE.equals(c.getPackageName())) followSonyLiv();
     }
 
     private void evaluate(MediaController c, PlaybackState s) {

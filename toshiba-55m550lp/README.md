@@ -17,7 +17,8 @@ Side by side with screenshots and per-process memory: **[before-after.html](befo
 | Frames the home drew during a 108-key test | 2,683 (98 % janky) | **24** (0 janky; it only draws when you move) |
 | "Hey Google" listener (far-field mic) | always recording, ~30 % of a core | **off** at the switch |
 | Ad / tracker domains (doubleclick, googlesyndication, app-measurement, Netflix telemetry…) | resolve | **blocked** (AdGuard Private DNS) |
-| SonyLIV ads | shown | **none**: its ad request to Google's ad server fails at the DNS filter (checked 2026-11-06) |
+| SonyLIV episode ads | shown | **none**: its ad request to Google's ad server fails at the DNS filter (checked 2026-11-06) |
+| SonyLIV live-match ads | loud | **muted** while they play, sound back when the match returns (TV Keys 1.3.1, 2026-11-07) |
 | Animations | 1.0× | **0.5×**, kept after reboots |
 | Home app cold start | 601 ms | 1,088 ms (slower; it stays loaded as Home, so rarely felt) |
 
@@ -36,12 +37,15 @@ Not claimed: per-key latency. The benchmark could time 25 of 108 presses on the 
 - **PS5 tile** in the dock: opens HDMI 1 directly (it borrows the unused Screen Mirroring tile)
 - 13 preloads disabled (below); far-field "Hey Google" mic switched off at the TV's physical switch
 
-**Remote buttons (2026-11-06)** — **[TV Keys](../tv-keys/)**, a 21 KB app built on this Mac (no internet
+**Remote buttons (2026-11-06)** — **[TV Keys](../tv-keys/)**, a 25 KB app built on this Mac (no internet
 permission): gear → Settings, YouTube, Prime Video, Google Play, Apps → App library. It reads the firmware's
 key log instead of filtering keys, so held volume still ramps (75 ms steps). Idle cost: ~0 for the app, +0.08 % of one
 core in the system log service. Survives reboots. Details and undo: CHANGES.md T12.
 **Prime Video ads are muted** by the same app (T13): it watches Prime's media session, mutes when an ad starts and
-puts the sound back the moment the ad ends. Mute only, nothing is skipped. SonyLIV needs no mute (the DNS filter already stops its ads, see Ads below); JioHotstar not covered.
+puts the sound back the moment the ad ends. Mute only, nothing is skipped.
+**SonyLIV live-match ads are muted** too (T14, 2026-11-07): it reads SonyLIV's own log, where each ad break shows
+up as video loaded from the ad server's path, and mutes the moment the audio switches over. SonyLIV episodes need no
+mute (the DNS filter already stops their ads, see Ads below). JioHotstar not covered.
 
 **Decluttering** — all `pm disable-user --user 0`, nothing uninstalled
 - Retail/store demo, first-run leftovers, on-screen disclaimer
@@ -62,8 +66,9 @@ puts the sound back the moment the ad ends. Mute only, nothing is skipped. SonyL
   (`pubads.g.doubleclick.net`) for an ad. On this TV that name now resolves to 127.0.0.1, so the request fails
   (`FAILED_TO_REQUEST_ADS` in its log) and the episode plays at once; you saw no ads in episodes either. Nothing was
   installed or changed for this. If you ever want SonyLIV's ads back (or it starts refusing to play), switch Private
-  DNS off: `adb shell settings put global private_dns_mode opportunistic`. Its live channels may use ads stitched
-  into the stream, which DNS can't stop; not checked.
+  DNS off: `adb shell settings put global private_dns_mode opportunistic`. Its **live matches** are different: their
+  ads are stitched into the stream on the server (AWS MediaTailor), so DNS can't stop them. TV Keys mutes those
+  instead (T14).
 
 ## What couldn't be done, and why
 

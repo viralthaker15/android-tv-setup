@@ -17,7 +17,7 @@ mkdir -p build/classes build/dex build/gen
 # 1. Resources + manifest -> an APK without code, plus R.java
 "$BT/aapt2" compile --dir res -o build/res.zip
 "$BT/aapt2" link build/res.zip -I "$JAR" --manifest AndroidManifest.xml \
-    --min-sdk-version 30 --target-sdk-version 34 --version-code 3 --version-name 1.2 \
+    --min-sdk-version 30 --target-sdk-version 34 --version-code 5 --version-name 1.3.1 \
     --java build/gen -o build/base.apk
 
 # 2. Java -> .class -> classes.dex

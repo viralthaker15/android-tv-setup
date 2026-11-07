@@ -2,7 +2,8 @@
 
 Makes the remote's app buttons work on the living-room Toshiba 55M550LP (Hisense-built Google TV, Android 11,
 firmware 01.03.05.04, remote CT-95042) after the Google TV home was disabled, **without** a key-filtering
-accessibility service, so a held volume key still ramps. It also mutes Prime Video ads (below).
+accessibility service, so a held volume key still ramps. It also mutes Prime Video ads and SonyLIV live-match ads
+(below).
 
 **Setting this up on a different TV?** Read [CLAUDE.md](../CLAUDE.md) at the top of this repo first. It has the reasoning, the measurements
 from this TV and a step-by-step for finding your own TV's key codes and ad signal. The key codes below are for this
@@ -30,10 +31,10 @@ one remote and will be different on yours.
 
 Measured on the TV, idle on Home, 2 × 120 s: the app and its logcat 0.00–0.01 % of one core; logd 0.20 → 0.28 %.
 
-## Ad mute (Prime Video)
+## Ad mute (Prime Video, SonyLIV live matches)
 
-`AdMuteService` mutes the TV while Prime Video plays an ad and unmutes when it ends. Mute only: it never skips, seeks
-or blocks anything.
+`AdMuteService` mutes the TV while Prime Video plays an ad, or while a SonyLIV live match is in an ad break, and
+unmutes when it ends. Mute only: it never skips, seeks or blocks anything.
 
 - **Signal.** During an ad break Prime's media session reports `STATE_PLAYING` at speed 0 and drops the seek actions
   (`actions` 1049455 → 1049095); seek comes back the moment the ad ends. Film playback always keeps `SEEK_TO`, and a
@@ -45,12 +46,20 @@ or blocks anything.
   away, when the service restarts, and after 5 minutes at most. Never changes the volume level. Leaves the sound alone
   if it was already muted, or if you press volume/mute during the ad.
 - **Verified** on 2026-11-06: a 32 s pre-roll muted 43 ms after Prime reported it and unmuted 44 ms after it ended.
-  Not verified: a mid-roll's end with mute on, live streams. SonyLIV needs no mute on this TV (the DNS filter
-  already stops its ads; see the main guide, Part 1 step 8). JioHotstar was not tested. `APPS` lists Prime only.
+  Not verified: a mid-roll's end with mute on, live streams.
+- **SonyLIV live matches** (`SonyLivAds`). Their ads are stitched into the stream on the server (AWS MediaTailor),
+  and SonyLIV's media session doesn't change during them. SonyLIV's own log does: it logs every video request, and ad
+  video comes from MediaTailor's `/v1/segment/` path 0.5–6.4 s before it reaches the screen; the audio decoder logs a
+  reconfiguration (`CCodecConfig`) at the moment playback crosses between match and ad. Each switch is queued and
+  applied at the next decoder change; a decoder change with nothing queued (pause, resume, language change) is
+  ignored. The log is read only while SonyLIV has a media session (`logcat --pid`, tags `OkHttp` and
+  `CCodecConfig`), at 0.5 % of one core. Extra safety: unmutes if the match has been loading for 20 s without a
+  decoder change. Measured and verified by ear on 2026-11-07 (India vs NZ one-day match); details in the main guide,
+  Part 3. SonyLIV episodes need no mute here: the DNS filter already stops their ads. JioHotstar was not tested.
 
 Enable: `adb shell cmd notification allow_listener dev.viral.tvkeys/dev.viral.tvkeys.AdMuteService`
 Disable: `adb shell cmd notification disallow_listener dev.viral.tvkeys/dev.viral.tvkeys.AdMuteService`
-Watch its decisions: `adb shell logcat -s TVKeys.AdMute`
+Watch its decisions: `adb shell logcat -s TVKeys.AdMute TVKeys.SonyLIV`
 
 ## Build and install
 
