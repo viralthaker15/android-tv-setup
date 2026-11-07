@@ -18,7 +18,7 @@ Side by side with screenshots and per-process memory: **[before-after.html](befo
 | "Hey Google" listener (far-field mic) | always recording, ~30 % of a core | **off** at the switch |
 | Ad / tracker domains (doubleclick, googlesyndication, app-measurement, Netflix telemetry…) | resolve | **blocked** (AdGuard Private DNS) |
 | SonyLIV episode ads | shown | **none**: its ad request to Google's ad server fails at the DNS filter (checked 2026-11-06) |
-| SonyLIV live-match ads | loud | **muted** while they play, sound back when the match returns (TV Keys 1.3.1, 2026-11-07) |
+| SonyLIV live-match ads | loud | **muted** while they play, sound back when the match returns (TV Keys 1.3.1, 2026-11-07); not the broadcaster's own ads in unfilled breaks |
 | Animations | 1.0× | **0.5×**, kept after reboots |
 | Home app cold start | 601 ms | 1,088 ms (slower; it stays loaded as Home, so rarely felt) |
 
@@ -44,7 +44,8 @@ core in the system log service. Survives reboots. Details and undo: CHANGES.md T
 **Prime Video ads are muted** by the same app (T13): it watches Prime's media session, mutes when an ad starts and
 puts the sound back the moment the ad ends. Mute only, nothing is skipped.
 **SonyLIV live-match ads are muted** too (T14, 2026-11-07): it reads SonyLIV's own log, where each ad break shows
-up as video loaded from the ad server's path, and mutes the moment the audio switches over. SonyLIV episodes need no
+up as video loaded from the ad server's path, and mutes the moment the audio switches over. A break SonyLIV doesn't fill itself plays the
+broadcaster's own ads inside the match video; those carry no signal and are not muted. SonyLIV episodes need no
 mute (the DNS filter already stops their ads, see Ads below). JioHotstar not covered.
 
 **Decluttering** — all `pm disable-user --user 0`, nothing uninstalled

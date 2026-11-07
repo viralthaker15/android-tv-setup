@@ -12,7 +12,7 @@ can do the same on theirs.
 | Animations | 1.0× | 0.5×, kept after reboots |
 | Remote app buttons (gear, YouTube, Prime, Play, Apps) | worked | dead after removing the stock home, then **back** with TV Keys, and a held volume key still ramps |
 | Prime Video ads | loud | **muted** while they play, sound back the moment they end (nothing skipped) |
-| SonyLIV ads | shown | episodes: **gone** (the DNS filter blocks the ad request); live matches: **muted** while they play |
+| SonyLIV ads | shown | episodes: **gone** (the DNS filter blocks the ad request); live matches: **muted** while they play, except breaks filled with the broadcaster's own ads |
 | Ad and tracker domains | resolve | blocked (AdGuard Private DNS) |
 
 Screenshots and the per-process numbers: [`toshiba-55m550lp/before-after.html`](toshiba-55m550lp/before-after.html)

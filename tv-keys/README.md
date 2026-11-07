@@ -55,7 +55,8 @@ unmutes when it ends. Mute only: it never skips, seeks or blocks anything.
   ignored. The log is read only while SonyLIV has a media session (`logcat --pid`, tags `OkHttp` and
   `CCodecConfig`), at 0.5 % of one core. Extra safety: unmutes if the match has been loading for 20 s without a
   decoder change. Measured and verified by ear on 2026-11-07 (India vs NZ one-day match); details in the main guide,
-  Part 3. SonyLIV episodes need no mute here: the DNS filter already stops their ads. JioHotstar was not tested.
+  Part 3. **Not muted:** a break MediaTailor leaves unfilled plays the broadcaster's own ads inside the match video. SonyLIV then loads nothing from the ad path and the decoder doesn't change, so there is no signal and TV Keys can't tell (seen once, 10:57 on 2026-11-07; nothing else in the log marked it either).
+  SonyLIV episodes need no mute here: the DNS filter already stops their ads. JioHotstar was not tested.
 
 Enable: `adb shell cmd notification allow_listener dev.viral.tvkeys/dev.viral.tvkeys.AdMuteService`
 Disable: `adb shell cmd notification disallow_listener dev.viral.tvkeys/dev.viral.tvkeys.AdMuteService`

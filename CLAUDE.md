@@ -369,7 +369,7 @@ last 15 s when it starts, because a pre-roll begins about a second before SonyLI
 pre-roll is muted 1–2 s late. If TV Keys starts in the middle of a stream it waits for the next switch. While
 SonyLIV plays it costs 0.5 % of one core in all (do **not** use logcat's `-e` regex filter here: it cost 4.2 %).
 SonyLIV's episodes never load from the ad path, so they are untouched. This depends on SonyLIV logging its HTTP
-requests; if an update stops that, nothing is muted, which is the safe way to fail. On another TV, check that both
+requests; if an update stops that, nothing is muted, which is the safe way to fail. **Not muted:** a break MediaTailor leaves unfilled plays the broadcaster's own ads inside the match video. SonyLIV then loads nothing from the ad path and the decoder doesn't change, so there is no signal and TV Keys can't tell (seen once, 10:57 on 2026-11-07; nothing else in the log marked it either). On another TV, check that both
 lines appear (`adb logcat --pid=$(adb shell pidof com.sonyliv) -s OkHttp:I CCodecConfig:D`) and re-time them.
 
 Safety, all in the code: the "muted by us" flag is saved (`commit()`) before muting. It unmutes when the ad ends,
